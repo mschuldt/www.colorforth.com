@@ -1,0 +1,24 @@
+<h1 align=center>Blue screen</h1>
+<img src="b1178.jpg">
+<br>This code resides in block 1178 and is to be loaded into node 717. It will display the 'blue screen of death' which is a notorious failure mode of Windows. This is simple video, but illustrates many features.
+  
+<h2><font color=red>sol</font></h2>
+The word sol is how 717 waits for the Start of Line signal. It doesn't matter what is on the stack; it's written to the up port, since that's the address in register a. It would save memory to put <font color=green>dup !</font> in-line, but the separate word helps document what's going on. 
+
+<p>The up port is read to get the A/D counter. It is never really written, so its write decode is borrowed to test pin 71. And that write is delayed until the pin goes high. The write goes nowhere, but the stack is popped.
+
+<p>The framing node puts a short pulse on pin 71; sol will waken on the rising edge.
+
+<h2><font color=red>go</font></h2>
+Go ends with <font color=green>go ;</font> so is an infinite loop.
+
+<p>After Start, it writes 41af (bright) to the D/A since the address of io is in register b. Then waits 8346 unexts till the end of the visible line and writes 4155 (off) to blank the rest of the line.
+
+<p>This repeats indefinitely. In particular, there is no way to change this behavior except resetting the chip. This is the simplest way to change an application, but it would be more graceful to test for instructions on a port during vertical retrace.
+
+<h2>Options</h2>
+You can change the length of the bright pulse by changing the number of unexts.
+
+<p>You can change the brighness of the screen by changing which of the 3 numbers 41af 41d7 4113 is green instead of white. These 3 levels provide distinct shades of blue.
+
+<p>You can change the color by changing the active node. The numbers 1 5 9 on the last line steer the code to nodes 709, 713 or 717 whose outputs are connected to the monitor's red, green and blue inputs. The same code works in any of these nodes since pin 71 is available to all as a synchronizing signal.

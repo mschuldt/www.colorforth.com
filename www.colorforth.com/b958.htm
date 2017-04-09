@@ -1,0 +1,26 @@
+<h1 align=center>Exponential</h1>
+The inverse of <a href="b1206.htm">logarithm</a>. Takes a 12-bit floating-point number and produces a 35-bit integer. Reverses a logarithmic compression or calculation. Accurate to 10 bits.
+
+<img src="b958.jpg">
+<h2><font color=red>*.</font></h2>
+16-bit fraction multiply. Leaves multiplicand on stack
+
+<h2><font color=red>2*d</font></h2>
+Standard 36-bit left shift. Carry should be 0
+
+<h2><font color=red>split</font></h2>
+Extract the exponent from the floating number
+
+<img src="hart.jpg" align=right>
+<h2><font color=red>ex2</font></h2><ul>
+<li>Save the exponent
+<li>Mask the fraction
+<li>Shift fraction to be 16 bits
+<li>Compute cubic polynomial of fraction. Coefficients from Hart
+<li>Shift fraction to 12 bits. Coefficients could be scaled to accomplish this
+<li>Replace multiplicand with high-order 0</ul>
+
+<h2><font color=red>shift</font></h2>
+Shift is only defined as a comment.<ul>
+<li>If exponent negative, shift right
+<li>Otherwise shift left. If carry is not 0, it adds negligibly to noise</ul>

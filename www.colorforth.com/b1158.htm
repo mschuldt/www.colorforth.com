@@ -1,0 +1,55 @@
+<h1 align=center>18-bit SRAM</h1>
+The Eval board has 1 Mw of 16-bit SRAM. That makes it awkward to store 18-bit instructions. This code packs and unpacks 18-bit data into 16-bit memory. It is surprisingly easy to do. Words are left-justified in <font color=green>a</font> and right-justified in T, then T is right-shifted into <font color=green>a</font> by <font color=green>+*</font>.
+
+<img src="b1158.jpg">
+<p>Block 1158 is loaded into node 108, next to node 008 which is the SRAM controller.
+
+<h2><font color=red>9/8</font></h2>
+Converts a count of 18-bit words to a count of 16-bit words. Multiples by 9/8.<ul>
+<li>Send the read/write command to 008
+<li>Add 1 to the ether 0-based count to get true count
+<li>Add 1/8 to that
+<li>Subtract 1 back to 0-based count
+<li>Send to 008
+<li>Send address to 008
+<li>Divide original count, which must be a multiple of 8 (-1), by 8</ul>
+
+<h2><font color=red>rd</font></h2>
+Reads from memory 9 16-bit words and sends 8 18-bit ones.<ul>
+<li>Read first word
+<li>Loop 8 times<ul>
+   <li>Shift word left 2 bits
+   <li>Read next word, storing first in <font color=green>a</font>. Low-order bits are 0
+   <li>Get loop index and or with 7. This counts up from 0
+   <li>Save on return for 2nd unext
+   <li>Use unext to shift T and <font color=green>a</font> right. The <font color=green>+*</font> instruction won't add register S to T
+<li>Send 18-bit <font color=green>a</font>
+   <li>Shift T back left, clearing low-order bits</ul></ul>
+
+<h2><font color=red>+read</font></h2>
+Analogous to <font color=green>+read</font> in code for 008. Takes count and address and returns 18-bit words.<ul>
+<li>Pops ether focus into register <font color=green>b</font> as where data should go
+<li><a href="magic.htm">5617</a>: Tell 008 to read count and call address 17
+<li><font color=green>9/8</font> returns 0-based count /8. This is the number of 9-word packs to process</ul>
+
+<h2><font color=red>wr</font></h2>
+Receives 8 18-bit words and writes 9 16-bit ones to memory. The inverse of <font color=green>rd</font>.<ul>
+<li>Set T and S to zero
+<li>Loop 8 times:<ul>
+   <li>Save left-justified copy of previous word in <font color=green>a</font>
+   <li>Get next word and copy both S (0) and it
+   <li>Retrieve loop index
+   <li>Shift T and <font color=green>a</font> right. <font color=green>+*</font> may add S to T, but S is 0
+   <li>Retrieve left-justified <font color=green>a</font>, right-justify and write (sign bits ignored)</ul>
+   <li>Write last word</ul>
+
+<h2><font color=red>+write</font></h2>
+Analogous to <font color=green>+write</font> in code for 008. Takes count and address and writes 18-bit words.<ul>
+
+<li>Pops ether focus into register <font color=green>b</font> as to where data comes from
+<li>5625: Tell 008 to read count and call address 25
+<li><font color=green>9/8</font> returns count of packs</ul>
+
+<h2><font color=#c0c000>init</font></h2>
+Sets <font color=green>a</font> and awaits instruction with 4-port read.
+

@@ -1,0 +1,38 @@
+<h1 align=center>Sine and cosine</h1>
+<img src="cos.jpg">
+<br>This code from block 976 is loaded into node 610.
+The input angle is an 18-bit fraction of a revolution; 1. is represented as 3ffff. One bit is 5 arcseconds. The cos is a 17-bit fraction, with 1. represented as 1ffff. This provides 5-digit accuracy.
+
+<h2><font color=red>*.</font></h2>
+etherForth does not know ROM code, so the address of such code must be specified. <font color=green>*.</font> does a signed multiply by a 17-bit fraction. 
+
+<h2><font color=red>sin</font></h2>
+Sin is computed by subtracting 90<sup>o</sup> from the input angle and falling into <font color=green>cos</font>.
+
+<h2><font color=red>cos</font></h2>
+The approximation used is taken from Computer Approximations by John F Hart, Wiley 1968; function 3300. This excellent reference has coefficients for many functions to various precisions. This approximation is<ul>
+<li>x(a + bx<sup>2</sup> + cx<sup>4</sup> + dx<sup>6</sup>)</ul>
+which is good to 17 bits between 0 and 90<sup>o</sup>.<ul>
+
+<li>The input angle is an 18-bit fraction
+<li>The simple function tri (triangle) is computed as a linear approximation. It ramps up and down as does the cos and establishes the sign of the result. As the angle counts from 0-3ffff<ul>
+   <li>tri starts at 1ffff
+   <li>counts down by 2s to 00001
+   <li>thence to -1, skipping 0
+   <li>counts down by 2s to 20001 (largest negative number +1)
+   <li>repeats 20001
+   <li>counts up by 2s to 1ffff (at angle 3ffff)
+   <li>The repetition at the peaks will, of course, occur with the <font color=green>cos</font>. This is how you want 17-bit fractions to behave
+   <li>The effect is that a half-bit has been added to the input angle</ul>
+<li>x is saved (<font color=green>dup</font>) and squared
+<li>x<sup>2</sup> is multiplied by Hart's coefficients, scaled to 131,072 
+<li>Which is then multiplied by x
+</ul>
+
+<h2><font color=red>go</font></h2>
+An infinite loop reading an angle from <font color=green>left</font> (node 609) and returning sin and/or cos as desired.
+
+<h2>Validation</h2>
+I've plotted sin and cos which verifies gross behavior. I've displayed the residual of sin<sup>2</sup> + cos<sup>2</sup> - 1 which is a few bits from 0. And I've watched the bits near the peaks and zero crossings; all is as I expect.
+
+<p>I'm working on a 35-bit sin/cos which I'll use to check the 17-bit version.

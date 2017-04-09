@@ -1,0 +1,57 @@
+<h1 align=center>Stop Watch</h1>
+The a/d nodes have a 5GHz counter that can be read to time durations.
+
+<p>I use node 512 to generate green text. So it's convenient for 612 to act as a timer. It can talk via 712, 711 and 710 to 709 and read its counter. Then tell 512 to display it, in big decimal numerals.
+
+<p>Three words go thru the <font color=green>down</font> port to 712<ul>
+<li>! to read and start the counter
+<li>! to read and stop
+<li>@ to return the count</ul>
+The wire nodes must be bi-directional, sending 2 words and returning one.
+
+<p>In order to isolate the significant duration:<ul>
+<li>First a delay is measured that includes any overhead (analogous to tare offset on a scale)
+<li>Then the desired delay is measured and offset subtracted
+<li>And at some time the counter speed must be calibrated. I've measured the counts during a scan line (25 us).</ul>
+
+<br><img src="watch.jpg">
+<h2><font color=red>time</font></h2>
+Actually measures the delay<ul>
+<li>Offset on stack (<font color=green>dup</font>)
+<li>Save register <font color=green>a</font> (might be used by code)
+<li>Send start
+<li>Execute code to be timed
+<li>Restore <font color=green>a</font>
+<li>Send stop
+<li>Receive count
+<li>Subtract offset</ul>
+
+<h2><font color=red>cal</font></h2>
+Apply calibration to count<ul>
+<li>Save <font color=green>a</font> which is used by <font color=green>*/</font>
+<li>Move count over ns/count (.1782) so the unsigned count becomes the multiplier for <font color=green>*/</font>. This extends the maximum count to 262,143
+<li>Restore <font color=green>a</font></ul>
+
+<h2><font color=red>tare</font></h2>
+Similar to <font color=green>time</font> but timing overhead code. The line marked 'x' is where such code is placed. Leaves offset on stack.
+
+<h2><font color=red>go</font></h2>
+An infinite loop<ul>
+<li>Times the code
+<li>Applies calibration
+<li>Sends to node 512</ul>
+This is only done once per frame. Synchronization is managed by hanging on the <font color=green>!b</font>.
+
+<h2>Calibration</h2>
+To measure the counts in a scan line<ul>
+<li>Un-comment the <font color=green>;</font> in <font color=green>time</font>
+<li>Comment the <font color=green>cal</font> in <font color=green>go</font>
+<li>Comment <font color=green>go</font> and un-comment <font color=green>cal</font> in <font color=#c0c000>init</font> for node 709</ul>
+Such editing of source code is much easier than having separate calibration code.
+
+<h2><font color=#c0c000>init</font></h2>
+Two items of note<ul>
+<li>It reads a word from <font color=green>up</font> (512) before starting. 612 is loaded before 512, so must delay
+<li>Starts at <font color=green>tare</font> which falls into <font color=green>go</font>. Thus <font color=green>tare</font> is run only once.</ul>
+
+<p>Typically, code is edited and loaded. Measurements are observed. Code re-edited, etc. This interactive process is essential to getting a credible measurement.

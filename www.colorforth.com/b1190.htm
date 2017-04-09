@@ -1,0 +1,23 @@
+<h1 align=center>Scaling</h1>
+<img src="b1190.jpg">
+<br>This code from block 1190 is loaded into node 609. All it does in interface between the generic sin/cos node and the video node. This node is not necessary, but factors the problem nicely. It could plot more than one function, though this is easier done with the other color nodes.
+
+<h2><font color=red>go</font></h2>
+An infinite loop:<ul>
+<li>For 767 scan lines:<ul>
+   <li>Fetch the angle (<font color=green>dup</font>) and send to <font color=green>left</font>.
+   <li>Fetch the sin from <font color=green>left</font> (610)
+   <li>Scale it conveniently, it must be positive
+   <li>Send to <font color=green>down</font> (709) as dark delay
+   <li>Followed by short bright
+   <li>Send end-of-line
+   <li>Increment the angle. It must be masked to avoid going negative, which would switch to cos.   
+</ul>
+<li>Send the 768th end-of-line. Incrementing the angle only 767 times/frame produces a pleasant scroll.
+</ul>
+
+<h2><font color=#c0c000>init</font></h2>
+In addition to loading the address registers, leaves end-of-line and angle on the stack.
+
+<h2><font color=#c0c000>ether</font></h2>
+Notice that to load code into node 609, you can't go <font color=#c0c000>0 r</font> from node 608. Instead, you must go <font color=#c0c000>1 d 1 r 0 u</font>. <font color=#c0c000>0 r</font> is forbidden because it makes the path word zero.

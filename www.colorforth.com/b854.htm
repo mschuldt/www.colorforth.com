@@ -1,0 +1,24 @@
+<h1 align=center>Character font</h1>
+<img src="b854.jpg">
+<br>This code from block 854 is loaded into node 514. It provides access to memory sufficient to store the 5x7 font for 27 characters: blank 0-9 a-p.
+
+<p>The design of a font is a balance between size and legibility. This seems to work.
+
+<h2><font color=red>go</font></h2>
+An infinite loop:<ul>
+<li>Fetch character from <font color=green>left</font> (513)
+<li>Compute address: font is 2 words/char starting at address 0a
+<li>Address into <font color=green>a</font>
+<li>If greater than 3f, ask <font color=green>right</font> (515) for font
+<li>Send 2 words back to <font color=green>left</font></ul>
+Fetching the words on the last line is the same whether they come from 514's RAM or from 515's port.
+
+<p>The offset of 0a lets the font wrap smoothly from 514 to 515.
+
+<h2>Font</h2>
+This 5x7 font was designed by Greg many years ago. Each character is represented here in hex as 7 bytes, 4 in the first word, 3 in the second (right justified). Reading from left to right they are the 5 bits (again right justified) of a character from top to bottom. The bits also read from left to right. The word <font color=#c0c000>g,</font> tells the compiler how to pack 2 32-bit numbers into 2 18-bit ones.
+
+<p>The resulting 36-bit format is:<ul>
+<li>The sign bit of the first word specifies a descender if set <li>3 5-bit fields
+<li>A field with 2 bits in the first word and 3 bits in the second
+<li>3 more 5-bit fields</ul> 

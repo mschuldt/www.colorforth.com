@@ -1,0 +1,60 @@
+<h1 align=center>Histogram</h1>
+A histogram is essential to examine random numbers. Or generally, noisy numbers, such as come from a/d conversion. The numbers are binned; the number of occurrences in each bin counted and displayed. In this case, there are 256 bins.
+
+<h2>Memory</h2>
+Of course, there must be 256 words of memory to store the counts. With the Eval board, this could be external RAM. But here's a chance to use neighbors' memory, in this case using 5 nodes (509, 510, 511, 512 and 513). The first 4 can store 51 words, the remaining 13 being used for code. The last can store 56, for a total of 260.
+
+<p><img src="mem.jpg">
+<h2><font color=red>go</font></h2>
+An infinite loop. The histogram node (609) talks to the first memory node (509).<ul>
+<li>It expects an address and an instruction word
+<li>If the address is less than 51, the node executes the instructions (<font color=green>a push ex</font>)
+<li>Otherwise it sends the address, less 51, and the instruction to the next memory node (510)
+<li>Eventually a node will execute the instructions
+<li>One of the instructions returns a word. Forwarding nodes must relay this (<font color=green>@b !</font>)</ul>
+
+There are 3 instructions<ul>
+<li>Read word
+<li>Set word to 0
+<li>Increment word</ul>
+Reading is slow, since the number must ripple back. But, in the case of a histogram, you only read one word per scan line.
+
+<p>The others are fast, since several instructions can be rippling through the nodes at the same time.
+
+<p>The last memory node does not need 5 words of forwarding code. So it can start using memory at that point (3d) and wrapping from 3f to 0.
+
+<h2><font color=red>1+</font></h2>
+This code, at address 51, will be executed to increment a bin<ul>
+<li>1 has been copied on the stack
+<li>The address is in register <font color=green>b</font></ul>
+
+<img src="hist.jpg">
+<h2>Histogram</h2>
+Drawing the histogram uses run-length video.
+
+<h2><font color=red>go</font></h2>
+An infinite loop<ul>
+<li>An initialize loop to clear bins<ul>
+   <li>Sends loop index as address
+   <li>1 will be on the stack of the target node
+   <li>And the address in register <font color=green>b</font>
+   <li>So <font color=green>dup 2/ b! ;</font> are the instructions it should execute</ul>
+
+<li>2699 repetitions let the histogram grow 'till it fills the screen, then resets.
+
+<li>The display loop repeats 256 times, thickening a dot for 768 scan lines<ul>
+   <li>Again it sends loop index as address
+   <li>The instructions are to read and return a word (<font color=green>@b ! ;</font>)
+   <li>Repeat <font colop=green>dot</font> 3 times</ul>
+
+<li>Finally, a loop to update the histogram during vertical retrace<ul>
+<li>Random numbers are read from <font color=green>left</font> (610). This node presents a number, then computes another
+<li>The number (which was masked to 255) is sent as address
+<li>The instructions are <font color=green>dup 1+ ;</font> Where <font color=green>dup</font> copies the 1 on the target nodes's stack and <font color=green>1+ ;</font> is a jump to code that will complete the increment
+<li>The <font color=green>dup</font>s sent to memory identify instructions that <em>don't</em> return a value</ul>
+</ul>
+
+<h2><font color=#c0c000>init</font></h2>
+It's convenient to load node 610 before 609. Yet 610 would start sending numbers before 609 is ready. So 610 waits for a number from 609, which obliges with <font color=green>!</font>.
+
+<p>610 executes a <font color=green>@b</font> from the loading port during <font color=#c0c000>init</font>. This code <font color=green>@b go</font> must be in the same word so that loading can complete while 610 is waiting. 

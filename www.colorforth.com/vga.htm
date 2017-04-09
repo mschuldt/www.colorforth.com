@@ -1,0 +1,62 @@
+<h1>Putting socket in VGA site</h1><h3>
+
+Two problems: The hole pattern is rotated 180 degrees. The rows are too widely spaced.
+
+<p>I used a "HiDen 15pin female straight pcb mount" D-sub socket. Spread pins on socket.
+
+<p>Vertical sync is not used. Sync is composite (horizontal) sync.
+
+<h2>Intended board</h2>
+<table border=1>
+<tr><td>J70<td>VGA<td>J67<td>desc
+<tr><td>1<td>1<td>1<td>red
+<tr><td>2<td>2<td>2<td>green
+<tr><td>3<td>3<td>3<td>blue
+<tr><td>5<td>5<td><td>gnd
+<tr><td>6<td>6<td><td>gnd
+<tr><td>7<td>7<td><td>gnd
+<tr><td>8<td>8<td><td>gnd
+<tr><td>10<td>10<td><td>gnd
+<tr><td>13<td>13<td>4<td>sync
+<tr><td>14<td>14<td>5<td>
+<tr><td><td><td>6<td>gnd
+</table>
+
+<h2>Actual board</h2>
+VGA.1 at position J70.15 (lower right).
+<table border=1>
+<tr><td>J70<td>VGA<td>J67<td>desc
+<tr><td>1<td>15<td>1<td>input
+<tr><td>2<td>14<td>2<td>
+<tr><td>3<td>13<td>3<td>sync
+<tr><td>5<td>11<td><td>gnd (ID0)
+<tr><td>6<td>10<td><td>gnd
+<tr><td>7<td>9<td><td>gnd (KEY)
+<tr><td>8<td>8<td><td>gnd 
+<tr><td>10<td>6<td><td>gnd
+<tr><td>13<td>3<td>4<td>blue
+<tr><td>14<td>2<td>5<td>green
+<tr><td><td><td>6<td>gnd
+</table>
+
+<h2>Patched board</h2>
+Cut pin VGA.11 to protect input from gnd.
+<br>Cut pin VGA.15 to free J67.1.
+<br>Solder VGA.1, 2, 3, 13, 6, 8, 9 and 10.
+<br>Solder 6-pin header to J67.1, 3, 4, 5 and 6.
+<br>Jumper J70.15 to J67.1
+<table border=1>
+<tr><td>J70<td>VGA<td>J67<td>desc
+<tr><td><td>15<td><td>
+<tr><td>2<td>14<td>2<td>
+<tr><td>3<td>13<td>3<td>sync
+<tr><td>5<td>11<td><td>
+<tr><td>6<td>10<td><td>gnd
+<tr><td>7<td>9<td><td>gnd (KEY)
+<tr><td>8<td>8<td><td>gnd
+<tr><td>10<td>6<td><td>gnd
+<tr><td>13<td>3<td>4<td>blue
+<tr><td>14<td>2<td>5<td>green
+<tr><td>15<td>1<td>1<td>red
+<tr><td><td><td>6<td>gnd
+</table>

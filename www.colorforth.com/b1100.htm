@@ -1,0 +1,17 @@
+<h1 align=center>Best wire node</h1>
+<img src="b1100.jpg">
+<br>This code from block 1100 is loaded into node 614. Michael prompted me to write and test this version. It's the best we know: fastest and least power since its infinite loop does not include an instruction fetch. But it is not the shortest or simplest.
+
+<p>The word <font color=#c0c000>ether</font> on the last line expects to load RAM. So one word of program must be compiled (<font color=green>. . . .</font>).
+
+<h2><font color=#c0c000>init</font></h2><ul>
+<li>Registers a and b are loaded
+<li>An 3ffff is generated
+<li>It is pushed onto the return stack 9 times, completely filling that (circular) stack
+<li>An infinite loop reads from a and writes to b</ul>
+
+The infinite loop has 2 unexts in the same instuction word: one in slot 2, another in slot 3. The first will count 3ffff down to 0 and discard the 0. The second will find 3ffff as its count and decrement it. Then the first will find 3fffe and count it down to 0. This repeats indefinitely, a wonderful application of the circular return stack.
+
+<p>The loop will repeat 256,143 times with one unext delay and then an extra unext delay is required.
+
+<p>The last instruction is loaded from the ether comm port. Its execution is never finished. The p register still has the comm port address. If the ether port was one of the data transfer ports, <font color=green>@p</font> or <font color=green>!p</font> could be used to save a register. That is, save the code required to load it. That's not possible in this instance: ether loads from left; data transfers from down to up.

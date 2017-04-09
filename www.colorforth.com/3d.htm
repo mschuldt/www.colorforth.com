@@ -1,0 +1,31 @@
+<h1 align=center>3-d vector arithmetic</h1>
+It's expected that vectors are 16-bit fractions.
+
+<br><img src="3d.jpg">
+<h2>Storage</h2>
+Space is left at address 0 to store two 3-vectors. This seems optimal for their cross-product.
+
+<h2><font color=red>*.</font></h2>
+16-bit fraction multiply, discarding multiplicand
+
+<h2><font color=red>*v</font></h2>
+Cross product. Wikipedia lists the result as<ul>
+<li>Given b3 b2 b1 a3 a2 a1 on the stack
+<li>Return a1b2-a2b1 a3b1-a1b3 a2b3-a3b2
+<li>This requires random access to components</ul>
+A neat way of access is to save all components. Then read through them, saving those needed on stack and return stack<ul>
+<li>Save vectors
+<li>For the 3<sup>rd</sup> component, read 5 components: save 0 and 4 on the stack; 1 and 3 on the return stack
+<li>Multiply the stack
+<li>Multiply the return stack and subtract
+<li>Similarly for the other 2 components</ul>
+
+<h2><font color=red>.v</font></h2>
+Dot product.<ul>
+<li>Use storage at 0 for 2 components of first vector, <font color=green>a</font> for 3<sup>rd</sup>
+<li>Push 2 components of second vector
+<li>Multiply 3<sup>rd</sup> components
+<li>Multiply and add 2<sup>nd</sup> and 1<sup>st</sup> components</ul>
+
+<h2><font color=red>+v</font></h2>
+Add 2 vectors. Similar storage as for <font color=green>.v</font>.

@@ -1,0 +1,33 @@
+<h1 align=center>10MHz clock</h1>
+<img src="b942.jpg">
+<br>This code from block 942 is loaded into node 200 which has I/O pin 18. A 10MHz ceramic resonator is to be connected from pin to ground. This non-linear drive strategy needs only 1 pin and uses minimal energy to maintain oscillation.
+
+<p>A resonator has a lower Q than a crystal and is much easier to start oscillating. It's plenty accurate for video. Pin 18 can be waited on by reading the left port, though nothing useful is returned.
+
+<p>Node 200 talks to node 300 via their down ports. 300 will use the clock to generate video framing signals. Code for 200 is loaded last since when it starts, all other nodes will be activated.
+
+<h2><font color=red>us</font></h2>
+us will delay a number of microseconds. The number of unexts in a us may need to be adjusted for different chips or temperatures. An oscilloscope is necessary for accurate determination.
+
+<h2><font color=red>ms</font></h2>
+ms will delay a number of milliseconds. The number of unexts in <font color=green>us</font> may be different if accurate ms timing is desired.
+
+<p>Neither <font color=green>us</font> or <font color=green>ms</font> is used here. I leave the code in clock as a reference copy that I may be able to find.
+
+<h2><font color=red>go</font></h2>
+go, as usual, describes the strategy of running the clock. It generates 10 drive signals to start the oscillator. Then enters an infinite loop in which it lets the oscillator ring once, then pumps it once; each time sending a signal thru the down port. Of course, it's important the node 300 respond quickly to that signal.
+
+<h2><font color=#c0c000>init</font></h2>
+After setting registers a and b, the numbers 7 0 20000 800 6 0 30000 0 are left on the stack. This fills the stack with 2 sets of 4 numbers that are used by drive, pump and ring. <font color=green>dup dup drop drop</font> assures the 10-position stack is full.
+
+<h2><font color=red>drive</font></h2>
+Discards the first number (800 or 0), writes the next 2 to io (20000 0 or 30000 0) to pulse the oscillator high (low) then tri-state. Uses the last (7 or 6) to delay and fill the 50 ns half-period. Drive is called an even number of times (10) to start oscillation (5 cycles).
+
+<h2><font color=red>pump</font></h2>
+Sets the wake-up direction (800 low or 0 high) and reads the pin, waiting for the transition (going low or going high). Then pulses the oscillator and discards the 4th number. The pin input has hysteresis, so the transitions are roughly 1000 mV going high and 800 mV going low. The drive pulse occurs near the peak. Pump is called an even number of times. 
+
+<h2><font color=red>ring</font></h2>
+Sets the wake-up direction (800 low or 0 high) and waits for the transition. Ring is called an even number of times.
+
+<h2><font color=red>signal</font></h2>
+Saves and restores the a register. Sends a number to the down port to wake-up node 300.

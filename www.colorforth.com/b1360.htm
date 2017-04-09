@@ -1,0 +1,116 @@
+<h1 align=center>16-bit SRAM</h1>
+<img src="b1360.jpg">
+<br>This code in block 1360 is loaded into node 008 of the host chip. It provides access to SRAM, aided by nodes 007 (<font color=green>left</font>) which has 18 data pins and 009 (<font color=green>right</font>) which has 18 address pins. 008 has 4 control pins.
+
+<p>There are entry points for random and sequential read/write and read/modify/write. The challenge is to optimize sequential read, since reading is more common than writing. The 3 nodes cooperate to do so. For sequential<ul>
+<li>read 55 ns
+<li>write 118 ns
+<li>read/modify/write depends upon modify</ul>
+
+<h2>Paging</h2>
+The CY62167EV18 SRAM chip has 20 address pins to access 1 MW of 16-bit wide memory. The GA144 has 18 address pins accessing a page of 262,144 words and 2 others that select 1 of 4 pages.
+
+<p>The first 4 words of 008 RAM specify select bits for the 4 pages<ul>
+<li>Page bit in bit 16
+<li>Page bit in 4
+<li>Write-enable low in 2
+<li>Chip-select low in 0 (unchanged)</ul>
+ 
+<p>Register <font color=green>b</font> normally holds <font color=green>left</font>. Temporarily <font color=green>right</font> or <font color=green>io</font>. 
+
+<h2><font color=red>!pg</font></h2><ul>
+<li>Store page bits into the parameter word of <font color=red>pg</font></ul>
+
+<h2><font color=red>pg</font></h2><ul>
+<li>Leave page bits on stack
+<li>Put <font color=green>io</font> into <font color=green>b</font></ul>
+ 
+<h2><font color=red>page</font></h2><ul>
+<li>Take a page number
+<li>Fetch the indicated word
+<li>Store with <font color=green>!pg</font>
+<li>Bits are set to enable writing (to optimize write). Fall into <font color=green>+we</font> to turn them off
+<li>Address increment irrelevant</ul>
+<h2><font color=red>we+</font></h2><ul>
+<li>Get page select
+<li>Turn <em>off</em> write enable (io<sub>2</sub>)
+<li>Fall into <font color=green>inc</font>, partly to restore <font color=green>left</font></ul>
+
+<h2><font color=red>inc</font></h2><ul>
+<li>Set <font color=green>b</font> to <font color=green>right</font>
+<br>The stack is filled with alternate <font color=green>left</font> and <font color=green>right</font> entries by <font color=#c0c000>init</font> for ease in switching between nodes 007 and 009. Comments l and r indicate which is on top.
+<li>009 keeps the current SRAM address on its stack.
+<br>12000 says increment this, anticipating the next access
+<li>Reset <font color=green>b</font> to <font color=green>left</font></ul>
+
+<h2><font color=red>ad</font></h2>
+Passes an address to 009<ul>
+<li>Set <font color=green>right</font>
+<li>Fetch address from <font color=green>down</font>, the input port
+<li>Pass to 009 with <a href="magic.htm"><font color=#006000>5600</font></a>
+<li>Reset <font color=green>left</font></ul>
+
+<h2><font color=red>read</font></h2>
+Entry point for random read<ul>
+<li>Get address
+<li>Fall into <font color=green>rd</font></ul>
+
+<h2><font color=red>rd</font></h2>
+Does the work of reading<ul>
+<li>Tell 007 to read current word. Timing is controlled by 007
+<li>Relay to <font color=green>up</font>
+<li>Increment address</ul>
+
+<h2><font color=red>+read</font></h2>
+Sequential read entry point<ul>
+<li>Push 0-based count
+<li>Call <font color=green>read</font> to get first word
+<li>Decrement count (<font color=green>zif</font>)
+<li>Repeatedly call <font color=green>rd</font></ul>
+
+<h2><font color=red>write</font></h2>
+Entry point for random write<ul>
+<li>Get address
+<li>Fall into <font color=green>wr</font></ul>
+
+<h2><font color=red>wr</font></h2>
+Does the work of writing<ul>
+<li>Tell 007 to write current word.
+<li>Relay from <font color=green>up</font>
+<li>Fall into <font color=green>we</font></ul>
+
+<h2><font color=red>we</font></h2><ul>
+<li>call <font color=green>pg</font>
+<li>Set write-enable
+<li>Jump to we+ to reset write-enable and increment address</ul>
+
+<h2><font color=red>+write</font></h2>
+Sequential write entry point<ul>
+<li>Push 0-based count
+<li>Call <font color=green>write</font> to write first word
+<li>Decrement count (<font color=green>zif</font>)
+<li>Repeatedly call <font color=green>wr</font></ul>
+
+<h2><font color=red>rw</font></h2>
+Random read/write entry point<ul>
+<li>Get address
+<li>Fall into -rw</ul>
+
+<h2><font color=red>-rw</font></h2>
+Does the work of read/write<ul>
+<li>Tell 007 to read a word
+<li>Send it for modification
+<li>Fetch modified word
+<li>Write it back with <font color=green>we</font></ul>
+
+<h2><font color=red>+rw</font></h2>
+Sequential read/write entry point<ul>
+<li>Push count
+<li>Call <font color=green>rw</font> for first word
+<li>And <font color=green>-rw</font> for rest</ul>
+
+<h2><font color=#c0c000>init</font></h2><ul>
+<li>Initialize stack to alternating <font color=green>left</font>,<font color=green> right</font> with <font color=green>right</font> on top
+<li>Call <font color=green>we+</font> to set page bits to read and <font color=green>b</font> to <font color=green>left</font>
+<li>Set <font color=green>a</font> to <font color=green>down</font> and call the <font color=green>down</font> port for instructions</ul>
+

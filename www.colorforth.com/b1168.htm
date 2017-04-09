@@ -1,0 +1,37 @@
+<h1 align=center>Clock display</h1>
+<img src="b1168.jpg">
+<br>This code from block 1168 is loaded into node 512. It displays a 4-digit time that can be PDT, UTC or LST.
+
+<h2><font color=red>d/mod</font></h2>
+Basic divide code with a 36-bit positive dividend; 18-bit negative divisor, 18-bit positive quotient and remainder.
+
+<h2><font color=red>/mod</font></h2><ul>
+<li>Convert an 18-bit unsigned number to a 36-bit number
+<li><font color=green>d/mod</font> returns remainder and quotient</ul>
+
+<h2><font color=red>.min</font></h2>
+Display hhmm:<ul>
+<li>Separate 4 digits
+<li>Convert to characters (<font color=green>1 +</font>)
+<li>Send to <font color=green>right</font> (513)
+</ul>
+
+<h2><font color=red>.d</font></h2>
+4-digit decimal display. Not used.
+
+<h2><font color=red>eol</font></h2>
+Send end-of-line character.
+
+<h2><font color=red>go</font></h2>
+An infinite loop:<ul>
+<li>Display the 168 (7x24) scan-lines needed for a row of big text
+<li>Repeat for 1 LST minute (2932 times). A UTC, PDT minute would be 2940 times (49 Hz times 60)
+<li>Then increment minutes</ul>
+This timing is not exact, but adequate for my purposes.
+
+<h2>Big characters</h2>
+The display can be done with normal characters (with more blank lines) but it's not impressive.
+
+<p>Code for nodes <a href="b852.htm">513</a> and <a href="b848.htm">709</a> can be changed to display big characters. They're defined as the usual 5x7 bit maps (without the blank slice). For 8 times larger, each slice in 513 increases from 3 to 24 scan lines and the number of blank lines becomes 600. The pixel delay in 709 is increased so the pixels are square (166 unexts).
+
+<p>These changes are an exercise for the reader.

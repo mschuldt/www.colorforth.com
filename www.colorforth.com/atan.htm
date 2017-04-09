@@ -1,0 +1,50 @@
+<h1 align=center>ArcTangent</h1>
+Another interesting calculation:<ul>
+
+<li>It must reconcile the proper quadrant of the circle. A nice way of doing this is to require 2 arguments: sin and cos. Their signs determine the quadrant.
+<li>Which is the smaller determines the octant (45<sup>o</sup>).
+<li>Hart has an approximation for arcsine between 0 and 45<sup>o</sup> which is simpler than computing arctangent.
+<li>Finally, an offset for the original octant is added</ul>
+
+<img src="atan.jpg">
+<h2>Arithmetic</h2>
+<h2><font color=red>*/</font></h2>
+This is a perfect application for <font color=green>*/</font>. A number is multiplied by a ratio. I see it as simpler, faster and more accurate than <font color=green>/.</font> and <font color=green>*.</font>.
+
+<h2><font color=red>!oct</font></h2>
+Shifts a sign bit into register <font color=green>a</font>. Uses the trick <font color=green>- 2* -</font> to shift in a 1.
+
+<h2><font color=red>min</font></h2>
+The standard library function is modified by adding a call to <font color=green>!oct</font> at the right time.
+
+<h2><font color=red>abs</font></h2>
+The standard library function is modified by adding a call to <font color=green>!oct</font>.
+
+<h2>Function</h2>
+Hart's approximation is:<ul>
+<li>arcsin(x) = x(a + bx<sup>2</sup>)/(c + dx<sup>2</sup> + ex<sup>4</sup>)</ul>It's good to 5 decimals. His coefficients compute the angle in radians. I scale the numerator to produce the right answer at sin(45<sup>o</sup>). This requires multiplying by 65536/10pi to get a 16-bit fraction. The denominator is multiplied by 65536/10.
+
+<p>A table of offsets for the 8 octants is stored at 0. When the computed 15-bit angle is added, the result will be an 18-bit fraction. Half the octants require the angle be reversed.
+
+<h2><font color=red>atan</font></h2>
+Arguments are 2 17-bit fractions, cos on top, sin beneath.
+
+<p>(<font color=green>atan</font> will leave stuff on the stack. Doesn't matter since it's so big it will always have its own node.)
+
+<p>The octant is coded as the number csr<ul>
+<li>c is the sign of cos
+<li>s is the sign of sin
+<li>r is 1 if cos is smaller than sin</ul>
+So the order of the octant table in normal octant numbering is: 0, 1, 7, 6, 3, 2, 4, 5.<ul>
+
+<li>The octant is built in register <font color=green>a</font>. First the sign of the cos, then the sign of the sin, then their comparison
+<li>After the smaller positive fraction is chosen, it's divided by 2 into a 16-bit fraction and squared
+<li>The negative denominator is calculated
+<li>Then the numerator
+<li>Then a 15-bit angle
+<li>Which is augmented from the octant table. An <font color=green>or</font> is used (instead of <font color=green>+</font>). That seems to tweak the bits just right</ul>
+
+<h2>Validation</h2>
+Given an angle, <font color=green>sin</font> and <font color=green>cos</font> are computed and from them <font color=green>atan</font>. The result is compared to the original angle.
+
+<p>I can display 768 points at a time and have done so for various samplings of the 262,144 possible angles. Error seems to be +- 1 bit. Further testing will be done when <font color=green>atan</font> is used.

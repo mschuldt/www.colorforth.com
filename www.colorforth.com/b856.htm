@@ -1,0 +1,53 @@
+<h1 align=center>Dump</h1>
+<img src="b856.jpg">
+<br>This code from block 856 is loaded into node 512. It displays 64 words on the monitor. Useful for looking at a node's RAM or external Flash or SRAM. Though it's mostly an exercise in displaying text.
+
+<p>Four other nodes are are involved in this application<ul>
+<li>513 slices characters
+<li>514 contains the font
+<li>613 is a wire from 513 to 713
+<li>713 displays green characters
+</ul>
+
+This application is an example of replacing memory with computation. Rather than store the image in RAM and read it back to display, the image is generated line by line. This has the advantage of providing a dynamic display. If the node was changing its memory, you'd see that happening without further effort.
+
+<h2><font color=red>go</font></h2>
+An infinite loop that displays<ul>
+<li>A block number
+<li>16 rows of 5 numbers
+<li>215 blank lines</ul>
+
+Each pixel in this display is ~12 unexts wide by 3 scan-lines high. The character font is 5x7 pixels and may be offset down 2 pixels for a descender. A row of text is 30 scan lines: 3 blank and 27 for 9 pixels.
+
+<p>To display the block number requires 27 repetitions of octal conversion and end-of-line.
+
+<p>With a starting address of 0 on the stack, 16 rows are displayed, incrementing the address by 4 each time.
+
+<h2><font color=red>.o</font></h2>
+The number of digits (- 1) is on top of the stack, with the number to be displayed underneath. There are 2 loops, one to shift the octal digits, leaving the high-order digit on top. Another to mask and display the digits. Adding one to a digit (octal, decimal or hex) gives the code for its character.
+
+<h2><font color=red>eol</font></h2>
+End-of-line is indicated by a negative character.
+
+<h2><font color=red>bl</font></h2>
+A blank character is 0.
+
+<h2><font color=red>row</font></h2>
+Again, a row of text must be repeated 27 times.<ul>
+<li>First send a packet requesting 4 numbers
+<li>Display the 2-digit address
+<li>Fetch and display 4 6-digit numbers</ul>
+
+<h2><font color=red>pkt</font></h2>
+Sends an ether packet to a specified node. This is the first instance of a node generating a packet. As is my style, editing this source code selects among many options. Ignored options are commented out, but remain so I can recall them.
+
+<p>Node 512 will send the packet to 511, from whence the path begins. It sends<ul>
+<li>Focus. In etherForth, the literal <font color=green>left</font> is a <em>call</em> to the left port. It resides in register a.
+<li>Call to ether <font color=green>code</font>
+<li>Path. Which is generated manually on the PC
+<li>Count word<ul>
+   <li>high hex digit is reply count divided by 2
+   <li>low hex digit is 4 for 5 words of payload</ul>
+<li>Payload: the code to return 4 words from node's RAM. The sending code is interspersed with the code to be sent, which is delimited by /. This is convenient, but fiddly to code. <font color=green>@p</font> is used to fetch an instruction word as a literal. There are 3 words of code and 2 literals: address and count.</ul>
+
+<p>If the destination node is in the host chip, the path must be thru node 001 and a host path added to the payload.

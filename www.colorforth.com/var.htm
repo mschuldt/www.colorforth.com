@@ -1,0 +1,24 @@
+<h1 align=center>Variables</h1>
+This subtle and remarkable code was discovered by Peter. It provides for variables in RAM, retrieving them without involving an address register. Consider this self-modifying code<ul>
+<li><font color=red>n!</font> <font color=green>@p drop !p ;</font>
+<li><font color=red>n</font> <font color=green>0 ;</font></ul>
+The words must be adjacent in this order. They occupy 3 words of RAM.
+
+<h2><font color=red>n!</font></h2>
+Store value into variable <font color=green>n</font><ul>
+<li>Fetch the next word from RAM. That is the first instruction word of the variable's code. It must contain a <font color=green>@p</font> to fetch the parameter word
+<li>Discard the instruction word
+<li>Since <font color=green>@p</font> increments the <font color=green>p</font> register, it now points to the parameter word
+<li>Store the new value
+<li>End</ul>
+
+<h2><font color=red>n</font></h2>
+Calling <font color=green>n</font> will return its value, initially 0.
+
+<p><font color=green>n</font> may execute additional code, so long as the parameter is fetched in the first instruction word. For example<ul>
+<li><font color=red>n</font> <font color=green>0 . + ;</font></ul>
+will add the variable instead of just fetching it.
+
+<p><font color=green>n!</font> may also execute additional code, so long as it preceeds the 4-word sequence <font color=green>@p drop !p ;</font> aligned on a word boundary. I just used<ul>
+<li><font color=red>pg!</font> <font color=green>if drop <font color=#006000>4000</font> then @p drop !p ;</font>
+<li><font color=red>pg</font> <font color=green>0 or ;</font></ul>

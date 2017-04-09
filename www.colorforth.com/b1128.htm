@@ -1,0 +1,35 @@
+<h1 align=center>Video framing</h1>
+<img src="b1128.jpg">
+<br>This code from block 1128 is loaded into node 300 which has 2 I/O pins, one used for composite sync and one for the video nodes' Start signal. Several other blocks provide similar, but different, framing code.
+
+<p>Although separate horizontal and vertical sync signals are available, monitors seem to accept composite sync with both combined on the horizontal input. This saves a pin.
+
+<h2><font color=red>go</font></h2>
+Go defines the framing strategy. It generates 9 blank lines which fill out the bottom of the previous frame. Then 6 blank lines with inverted sync pulses. This is the vertical sync, defined by input being mostly low for a long time.
+
+<p>Sync is on pin 14 (300.17) and Start on pin 15 (300.1). The number 20002 says that the sync pulse will go low (while Start remains low). The number 30002 inverts the sync pulse.
+
+<p>Go then generates 23 more normal blank lines at the top of the frame and 768 visible lines. Changing the balance of 23 top and 9 bottom lines, while retaining the total of 32, may adjust the vertical position of an image. This depends on the monitor and doesn't work well for me. I have to adjust the vertical position on the monitor.
+
+<h2><font color=red>ticks</font></h2>
+This version of framing presumes a 10MHz signal coming from the down port. Ticks waits for a number of these clock ticks. <font color=green>@ drop</font> waits for a word and discards it as the actual value is meaningless.
+
+<p>A 10MHz clock ticks every 100 ns during which time a C18 can execute up to 70 instructions. So there's plenty of time between ticks to act. No power is used while waiting for a tick. However, that's not really relevant for a high-power video application.
+
+<h2><font color=red>pulse</font></h2>
+Generates the sync pulse according to the number on the stack; inverts that number to stop the pulse. The length of the pulse is non-critical; its leading edge is detected. I use 18 ticks or ~2 us.
+
+<p>Pulse is called by both blank and visible lines, so needs to be compatible with both. And both leave a number on the stack, which may be good or bad, I haven't decided.
+
+<h2><font color=red>sync</font></h2>
+Generates a sync pulse with horizontal positioning delay for blank lines.
+
+<h2><font color=red>-sync</font></h2>
+Generates a sync pulse and a Start pulse with horizontal positioning delay for visible lines. Start is early as required by the image that uses it (pcb). (Should it not have 35 ticks as does <font color=green>sync</font>?)
+
+<h2><font color=red>blanks</font></h2>
+Formats blank lines. A blank line uses 262 ticks, so should take 26.2 us.
+
+<h2><font color=red>lines</font></h2>
+Formats visible lines. The only difference between blank and visible lines is the Start pulse.
+

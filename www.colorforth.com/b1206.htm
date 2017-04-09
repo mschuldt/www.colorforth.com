@@ -1,0 +1,38 @@
+<h1 align=center>Logarithm</h1>
+An interesting example of number representation. Uses a floating point number with a 12-bit mantissa and 6-bit exponent. Accurate to a couple of bits.
+
+<p>Checked for consistency with <a href="b958.htm">exponential</a>. I'll tweak coefficients sometime.
+
+<p>The logarithm of a 35-bit integer uses this floating format. A positive exponent up to 17 is a left shift. A negative exponent up to -12 is a right shift.
+
+<p>Logarithm is useful for compressing a 35-bit number into an 18-bit number. And for doing logarithmic calculations (fractional powers). It's a standard library function, though I rarely need it.
+
+<img src="b1206.jpg">
+<h2><font color=red>*.</font></h2>
+17-bit fraction multiply. Leaves multiplicand on stack
+
+<h2><font color=red>2/d</font></h2>
+A 36-bit right shift that we've not used before. It does <font color=green>+*</font> that will not add.
+
+<h2><font color=red>norm</font></h2>
+Normalizes an integer producing a 12-bit fraction and 6-bit exponent.<ul>
+<li>Shifts high-order right until it's 0. Counts shifts with <font color=green>next</font> counter, offset to give right answer
+<li>Shifts low-order left till it becomes negative. Decrements exponent
+<li>Makes number a postive 17-bit fraction
+<li>Shifts exponent into position</ul>
+
+<img src="hart.jpg" align=right>
+<h2><font color=red>ln2</font></h2><ul>
+<li>Saves exponent
+<li>Computes cubic polynomial of fraction. Coefficients from Hart, scaled to 12 bits
+<li>Discards multiplicand
+<li>Adds exponent</ul>
+
+<h2><font color=red>float</font></h2>
+Combines mantissa and exponent to form a floating-point number. Just an example, it's not used.
+
+<h2><font color=red>log</font></h2>
+Logarithm to base 10 is simple scaling.
+
+<h2><font color=red>ln</font></h2>
+As is natural logarithm to base e.

@@ -1,0 +1,33 @@
+<h1 align=center>Pixel display</h1>
+<img src="b848.jpg">
+<br>This code from block 848 is loaded into green node 713. This is one of many blocks that generate video D/A output. It displays text pixels.
+
+<h2><font color=red>go</font></h2>
+An infinite loop:<ul>
+<li>Waits for a character
+<li>If negative, goes to <font color=green>sol</font>
+<li>Sets black into <font color=green>a</font>
+<li>For 6 pixels (5 plus blank)<ul>
+   <li>Waits 12 unexts
+   <li>Shifts left and calls <font color=green>pix</font>
+   </ul></ul>
+
+<h2><font color=red>pix</font></h2>
+Timing must be the same for bright and dark. Bright is on the stack and dark in <font color=green>a</font>.<ul>
+<li>If the stack is negative, the pixel is 1 (bright). The intensity is set from under the stack
+<li>Otherwise the pixel is 0 and dark is set from <font color=green>a</font></ul>
+
+<h2><font color=red>sol</font></h2>
+Wait for Start of Line<ul>
+<li>Save and restore <font color=green>a</font>
+<li>Write any word to <font color=green>up</font>
+<li>Fall into <font color=green>go</font></ul>
+
+<p>The up port is read to get the A/D counter. It is never really written, so its write decode is borrowed to test pin 71. And that write is delayed until the pin goes high. The write goes nowhere, but the stack is popped.
+
+<p>The framing node puts a short pulse on pin 71; <font color=green>sol</font> will waken on the rising edge.
+
+<h2><font color=#c0c000>init</font></h2>
+Three intensities are listed; medium is chosen.
+
+<p>I'm thinking execution should start at <font color=#c0c000>sol</font> not <font color=#c0c000>go</font>

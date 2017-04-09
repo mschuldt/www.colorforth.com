@@ -1,0 +1,14 @@
+<h1 align=center>Run-length video</h1>
+<img src="b1188.jpg">
+<br>This code from block 1188 is loaded into node 709. It's a video option I'm finding increasingly useful. The duration of dark is followed by the duration of bright, in unexts. This provides full-screen resolution (1024 pixels) since a scan line is some 9000 unexts.
+
+<h2><font color=red>sol</font></h2> 
+Writes to <font color=green>up</font> to wait for the Start-of-Line pulse.
+
+<h2><font color=red>run</font></h2> 
+An infinite loop:<ul>
+<li>Fetches from <font color=green>down</font> (609)
+<li>If negative, end-of-line
+<li>Otherwise, delay
+<li>Send dark or bright to <font color=green>io</font> whichever wasn't sent before. <font color=green>over</font> alternates the 2 brightnesses on the stack. An even number of dark-bright pairs is required. Dark followed by 0 bright produces a nice dot.
+</ul>

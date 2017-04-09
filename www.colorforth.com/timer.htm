@@ -1,0 +1,33 @@
+<h1 align=center>Timer</h1>
+This code programs a/d node 709 to act as a timer.
+
+<br><img src="timer.jpg">
+<h2><font color=red>stop</font></h2>
+Value (4155) that stops the a/d counter. This is done to save energy and to avoid heating and slowing the counter when it's not being used.
+
+<h2><font color=red>mode</font></h2>
+Saves <font color=green>a</font> and stores value into <font color=green>io</font>
+
+<h2><font color=red>start</font></h2>
+Value (6155) that starts a/d. It selects V<sub>ss</sub> calibration, which is the fastest count.
+
+<h2><font color=red>sol</font></h2>
+<font color=green>sol</font> writes to <font color=green>up</font> which waits for the start-of-line pulse. It then reads the counter (<font color=green>dup !b @b</font>).
+
+<h2><font color=red>cal</font></h2>
+An infinite loop<ul>
+<li>Ignore both start and stop commands
+<li>Call <font color=green>sol</font> twice and subtracts
+<li>Return count</ul>
+
+<h2><font color=red>go</font></h2>
+An infinite loop<ul>
+<li>Start a/d on command
+<li>Read a/d (<font color=green>!b @b</font>
+<li>Read a/d again on command
+<li>Stop
+<li>Subtract readings (a/d is a down counter, so result is inverted)
+<li>Return value</ul>
+
+<h2><font color=#c0c000>init</font></h2>
+Normally starts at <font color=green>go</font>. In case of calibrating against a scan line, starts at <font color=green>cal</font>.

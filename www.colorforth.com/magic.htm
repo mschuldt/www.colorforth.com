@@ -1,0 +1,12 @@
+<h1 align=center>Magic numbers</h1>
+There are 2 hex numbers used in etherForth code that need explaining. These are instructions sent to a neighbor to be executed from the comm port:
+<h2><font color=#006000>120aa</font></h2>
+The code for a call to address aa. The call instruction is in slot 0, so has a full range of addresses. The neighbor will execute the call, pushing the port address onto return. Returning from the call, execution continues from the port.
+<p>This is the value of literals like <font color=green>right</font> that are used to set a port address or sometimes as a call to a port.
+
+<h2><font color=#006000>56aa</font></h2>
+The code for <font color=green>@p call</font>. It's similar to <font color=#006000>120aa</font> with <font color=green>@p</font> prefixed. <font color=green>@p</font> is in slot 0 and call in slot 1. An address for slot 1 can access RAM (or ROM), but can't access a port.
+
+<p>This is an efficient way to pass a parameter to a word. The neighbor will execute <font color=green>@p</font> to fetch the next word you send, then execute the call.
+
+<p>Incidently, these numbers provide calibration as to what code looks like on the chip. Confusing inversion and bit alternation are performed in the PC on the way to the chip.

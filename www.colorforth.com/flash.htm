@@ -1,0 +1,71 @@
+<h1 align=center>SDI flash</h1>
+<p>The SST25WF080 is flash memory with an SPI interface. GA144 ROM code can boot from it. It provides 1MB of memory, which I access as 512KW.
+<img src="b1160.jpg">
+<br>This is code I've used to read/write the memory. It's been a while so my explanation may be weak.
+
+<p>The code has no paging, so an 18-bit address can access only 256 KW. But it looks like it's restricted to the first 128 KW.
+
+<h2><font color=red>8o</font></h2>
+Code in ROM to send 8 bits, left-justified in an 18-bit word. It expects a timing delay (0) in S, so there can only be a single output word.
+
+<h2><font color=red>sel</font></h2>
+Code in ROM to raise and lower chip enable. This identifies the following input as a command.
+
+<h2><font color=red>bits</font></h2>
+Code in ROM to return <font color=green>n</font> right-justified bits.
+
+<h2><font color=red>2cmd</font></h2>
+Send 2 8-bit commands, left-justified in an 18-bit word.
+
+<h2><font color=red>cmd</font></h2>
+Send 1 8-bit command, left-justified in an 18-bit word.
+
+<h2><font color=red>8!</font></h2>
+Send 8 left-justified bits and discard the remainder.
+
+<h2><font color=red>16i</font></h2>
+Receive 16 bits. This code is intended to transfer data to 16-bit SRAM. From there it can be unpacked into 18-bit words if appropriate.
+
+<h2><font color=red>ad</font></h2><ul>
+<li>Fetch an 18-bit word address. In this case from <font color=green>down</font>
+<li>Flash expects a 24-bit byte address
+<li>Send high-order 3 bits (Don't understand propagation of sign bit. Probably never tested beyond 17 bits)
+<li>Send middle 8 bits
+<li>Send low-order 8 bits (last bit 0)</ul>
+
+<h2><font color=red>read</font></h2>
+Don't understand how <font color=green>push over drop</font> are arranged. For debugging?<ul>
+<li>Retrieve delay
+<li>Send read command
+<li>Send address
+<li>Push count
+<li>Read and store (to <font color=green>down</font>) 16-bit words
+</ul>
+
+<h2><font color=red>busy</font></h2>
+Fetch flash status until it becomes negative.
+
+<h2><font color=red>write</font></h2><ul>
+<li>Push count
+<li>Send 2-byte write-enable command
+<li>Send address
+<li>For each word<ul>
+   <li>Send write command
+   <li>Fetch word (from <font color=green>down</font>)
+   <li>Left-justify
+   <li>Send 16 bits
+   <li>Wait while busy</ul>
+<li>Send end-write command
+<li>Wait while busy</ul>
+
+<h2><font color=red>erase</font></h2>
+Flash must be erased before it can be written, in 4K chunks<ul>
+<li>Send 2-byte erase command
+<li>Send address (multiple of 2K words)
+<li>Wait while busy</ul>
+
+<h2><font color=#c0c000>init</font></h2><ul>
+<li>Set address registers
+<li>Leave delay (0) on stack
+<li>Don't understand why configuration is commented out. Perhaps it's done in ROM
+<li>3 commands establish no protection and enable busy</ul>

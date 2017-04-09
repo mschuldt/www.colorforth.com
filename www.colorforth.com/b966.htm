@@ -1,0 +1,37 @@
+<h1 align=center>Video framing</h1>
+<img src="b966.jpg">
+<br>This code from block 966 is loaded into node 300 which has 2 I/O pins, one used for composite sync and one for the video nodes' Start signal. Several other blocks provide similar, but different, framing code.
+
+<p>Although separate horizontal and vertical sync signals are available, monitors seem to accept composite sync with both combined on the horizontal input. This saves a pin.
+
+<h2><font color=red>go</font></h2>
+Go defines the framing strategy. It generates 9 blank lines which fill out the bottom of the previous frame. Then 6 blank lines with inverted sync pulses. This is the vertical sync, defined by input being mostly low for a long time.
+
+<p>Sync is on pin 14 (300.17) and Start on pin 15 (300.1). The number 20002 says that the sync pulse will go low (while Start remains low). The number 30002 inverts the sync pulse.
+
+<p>Go then generates 23 more normal blank lines at the top of the frame and 768 visible lines. Changing the balance of 23 top and 9 bottom lines, while retaining the total of 32, may adjust the vertical position of an image. This depends on the monitor and doesn't work well for me. I have to adjust the vertical position on the monitor.
+
+<h2><font color=red>sync</font></h2>
+Generates the sync pulse according to the number on the stack; inverts that number to stop the pulse. The length of the pulse is non-critical; its leading edge is detected. I use 2 us, 703 unexts.
+
+<p>Sync is called by both blank and visible lines, so needs to be compatible with both. And both leave a number on the stack, which may be good or bad, I haven't decided.
+
+<h2><font color=red>blanks</font></h2>
+Provides the appropriate delay till the next sync. This determines the horizontal frequency.
+
+<h2><font color=red>lines</font></h2>
+Generates both blank and visible lines. It doesn't call blanks because I've had trouble with the transition from blank to visible causing a noticable shift in the first lines. The code here makes the timing identical.
+
+<p>The difference between blank and visible lines is the Start pulse. It's generated after sync and an appropiate delay (which should be factored into sync?). It uses a notable trick, <font color=green>2/ 2*</font> to set bit 0 to 0.
+
+<p>The blank and visible line lengths should be identical. An oscilloscope is helpful in setting this. Or trial and error looking at a display. A very small difference (ns) can be visible as a shift in the position of the top line(s) of an image.
+
+<h2>Temperature</h2>
+The nodes are asynchronous and the timing depends on temperature. This is not negligible at video rates. Operating near the limit of my monitor, I've seen it fail to accept the horizontal frequency as too low on a warm day. And I've seen a shift in horizontal position from top to bottom of a busy screen.
+
+<p>If this can't be calibrated out, you'll have to use a clocked sync, instead of relying on node delays.
+
+<h2>Voltage</h2>
+The GA144 has on-chip capacitance on the core power net. It lacks that on I/O power. (This will be imiproved on a future chip.) Video takes a lot of current: perhaps 10 mA for each of red, green and blue outputs.
+
+<p>You can see a horizontal shift between lines with lots of pixels and those with few. This could be due to a dip in I/O power (or perhaps temperature). If it's troublesome, use a clock.

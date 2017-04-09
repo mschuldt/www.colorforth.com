@@ -1,0 +1,33 @@
+<h1 align=center>Complex arithmetic</h1>
+It's expected that complex numbers are 16-bit fractions. Numbers are added so will get larger than 1, though stay less than 2.
+
+<p>The use of variables seems necessary. They are to be avoided because they're slow.
+
+<br><img src="complex.jpg">
+<h2><font color=red>*.</font></h2>
+16-bit fraction multiply, discarding multiplicand
+
+<h2><font color=red>r and i</font></h2>
+Storage for real and imaginary parts of first complex number. <font color=green>r</font> is also used to store the product ac.
+
+<p>Variables are relatively cheap, needing only 3 words of RAM. They avoid clashes on the stack, return stack and register <font color=green>a</font>.
+
+<h2><font color=red>*c</font></h2>
+Complex multiply is complex. It can be done in 3 multiplies:<ul>
+<li>Given a+ib and c+id
+<li>Product is ac-bd + i(ad+bc)
+<li>Imaginary part can be computed as (a+b)(c+d)-ac-bd
+<li>Since multiply is slow, this is good. But sums can exceed 1</ul>
+
+To do this<ul>
+<li>Save <font color=green>r</font> and <font color=green>i</font>
+<li>Compute product of sums and save on return stack
+<li>Compute ac and store in <font color=green>r</font>
+<li>Compute -bd and store in <font color=green>a</font>
+<li>Complete imagingary and real parts</ul>
+
+<h2><font color=red>+c</font></h2>
+Add 2 complex numbers. Return and <font color=green>a</font> can be used to manipulate numbers.
+
+<h2><font color=red>-c</font></h2>
+Negating a fraction can be done without adding 1. That would only affect the low-order bit.

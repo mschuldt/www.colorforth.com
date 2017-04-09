@@ -1,0 +1,18 @@
+<h1 align=center>Serial input</h1>
+The GA144 has ROM code in node 708 that boots from RS232 serial. This code can be used to talk to a PC. I use it for input to the target chip.
+
+<p>The ROM code reads 18 bits. This is spread over 3 bytes, with some bits for self-timing. I use 115,200 baud which is<ul>
+<li>8.7 us/bit
+<li>260 us for 30 bits, an 18-bit word
+<li>17 ms for a 64-word block</ul>
+Pretty slow!
+
+<p>All I do is read a word and pass it to node 608, an ether node. The code is trivial<ul>
+<li><font color=green>down a! begin 18ibits drop ! end</font></ul>
+<font color=green>18ibits</font> is at address <font color=#c0c000>cb</font>. It leaves a garbage word on the stack to be discarded, then the data word.
+
+<p>Data comes as from a hose. There's no acknowledge; timing (meaning delay) must be done by the PC.
+
+<p>The PC generates the ether protocol which I use to load 64 words into a node's RAM.
+
+<p>I'm planning to transfer such data to the external SRAM and reload it from there. 'Twill be faster (55 ns vs 260 us) and has the acknowledge intrinsic to comm ports. That prompted this note. 

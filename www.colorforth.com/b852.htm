@@ -1,0 +1,41 @@
+<h1 align=center>Slicing characters</h1>
+<img src="b852.jpg">
+<br>This code from block 852 is loaded into node 513. It send horizontal slices of characters to 713 via 613, fetching those characters from 512 and their font from 514.
+
+<h2><font color=red>go</font></h2>
+An infinite loop that displays 25 30-line rows and 18 blank lines.
+
+<h2><font color=red>row</font></h2><ul>
+<li>3 blank lines
+<li>Slice number (0) on stack
+<li>For 9 slices:<ul>
+   <li>Display the characters in the row 3 times with the current slice
+<li>Increment the slice number by 5</ul></ul>
+
+<h2><font color=red>lines</font></h2>
+Generate blank lines by sending a negative character.
+
+<h2><font color=red>chars</font></h2><ul>
+<li>Put slice number into <font color=green>a</font>
+<li>Fetch character from <font color=green>right</font> (512)
+<li>If negative, end-of-line; forward to 713 and exit
+<li>Send to <font color=green>left</font> (514)
+<li>Fetch 2 words of character bits
+<li>Extract 5-bit slice and forward to 713
+<li>Repeat until end-of-line</ul>
+
+<h2><font color=red>slice</font></h2>
+Double shift (36 bits) by amount in <font color=green>a</font>.<ul>
+<li>If high-order word negative, descender; reduce <font color=green>a</font> by 10<ul>
+   <li>If negative, return 0 for top pixels</ul>
+<li>If <font color=green>a</font> is not 15<ul>
+   <li>If it's greater than 15, slice is in low-order word; subtract 18 and shift it
+   <li>Otherwise shift high-order word</ul>
+<li>If a is 15, shift high-order word and append 3 bits of low-order</ul>
+   
+<h2><font color=red>shift</font></h2><ul>
+<li>Shift left number of bits in <font color=green>a</font>
+<li>Shift right and mask 5 bits</ul>
+
+<h2><font color=red>out</font></h2>
+Send number to <font color=green>up</font> (713 via 613)

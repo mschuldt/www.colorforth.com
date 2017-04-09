@@ -1,0 +1,57 @@
+<h1 align=center>Serdes master</h1>
+<img src="b978.jpg">
+<br>This code from block 978 is loaded into node 001. Serdes is short for serializer/deserializer. This code interfaces the hardware serdes port to the ether software protocol.
+
+<p>An 18-bit word is sent over a serial link to another GreenArrays' chip. The link is fast (600 Mb/s) but unique to these chips. Conversely, an 18-bit word is received from the link. The node is fully occcupied with this task and can only pass the data to and from a comm port.
+
+<p>It is paired with code in the other chip called Serdes slave. The master initiates an ether message which may require a reply. Slave code is subtlely different.
+
+<p>This is pretty complicated code and should be modified very carefully.
+
+<h2><font color=#c0c000>init</font></h2>
+Four numbers are put on the stack: 3fffe 0 77 focus.<ul>
+<li>3fffe will stay on the stack for use in reception <li>0 says there is no reply to the coming message
+<li>77 is the sum of the lengths of the next 2 messages
+<li>the focus port, the first word from the next messages.</ul>
+
+<h2><font color=red>slave</font></h2>
+The first message is the code to be loaded into the slave node followed by ether code to be loaded into node 601. These messages require special handling. <p>Focus is put into the b register, the first word is sent, then the remaining words.
+
+<h2><font color=red>first</font></h2>
+After loading this code into 001, the serdes port is still set to receive. The first word sent must change the port to send:
+
+<p>Register a is saved and restored. It is set to <font color=green>data</font>, which is a variant of <font color=green>up</font>. Storing to <font color=green>data</font> is immediate, whereas <font color=green>up</font> waits till the port is clear. The first word is fetched from the comm port and put into the serdes port. Then the send bit (17) is set in the io register to start transmission.
+
+<h2><font color=red>pay</font></h2>
+When processing the payload of a message there are 2 numbers on the stack: the count word, specifying the length of the reply; the length of the payload to be transmitted.
+
+<p>Input may stack up behind the comm port; this is harmless, the result of port read/writes not being satisfied. In fact, if input is coming from the PC via the asynchronous port (260 us/w) this will not happen. But if it's coming from elsewhere it may.
+
+<p>Serdes takes ~30 ns to send a word, 3x slower than a comm port. But still, you must be careful not to exceed the speed at which the slave can handle its input. The present serdes lacks an acknowledge, so a delay is added. This (31 unexts) has been tuned for a video image; a different application may want to change this delay.
+
+<p>The reply count, in the high bits of the count word, is examined. If zero, transmission continues; otherwise the serdes port is turned to receive and the reply forwarded. The port is turned to recieve again, to synchronize with the slave (turning takes a while). Then the first word of the next message is sent to return to transmission. And the head of that message processed.
+
+<h2><font color=red>cont</font></h2>
+To <font color=green>cont</font>inue transmission is similar to <font color=green>first</font>, except that send mode need not be established. The first word is simply sent.
+
+<h2><font color=red>head</font></h2>
+A message has a 4-word header:<ul>
+<li>The first word is focus. It has been sent and will be the same for slave as it was for master.
+<li>The next word is a call and is sent.
+<li>Next is the path which got to master; it is discarded.
+<li>Next is payload count; it is decremented since the path was discarded.
+<li>Next is the new path within the slave chip; it is sent
+<li>and then the count is sent.</ul>
+So a modified header is relayed to the slave. Then the remaining payload is sent.
+
+<h2><font color=red>turn</font></h2>
+To turn the bi-directional serial link from send to receive takes time (81 unexts). This is because pulling down the clock line is done by weak transistors.
+
+<p>The initial (2 unext) delay is again to synchronize with slave.
+
+<h2><font color=red>lis</font></h2>
+<font color=green>lis</font>ten, like <font color=green>first,</font> has to <em>work</em> to establish receive mode. It saves and restores register a; resets bit 17 of the io register and stores 3fffe into <font color=green>data</font>. 3fffe was on the stack, and must remain on the stack during receive, whence it will be restored into <font color=green>up</font> to time each incoming word.
+
+<font color=green>lis</font> must be called twice (I forget why).
+
+

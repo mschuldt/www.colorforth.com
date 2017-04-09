@@ -1,0 +1,50 @@
+<h1 align=center>Gaussian function</h1>
+This is the curve of the normal distribution: e<sup>-x<sup>2</sup>/2</sup>. It's tricky to calculate because numbers get so large (small) in the tail. This version works to maybe 4 sigma, before overflowing.
+
+<img src="norm.jpg" align=right>
+<p>I use it to validate the normal distribution of random numbers. A display of this function is superimposed on them, and even grows along with them. It's a fun, dynamic display.
+
+<p>This code in block 1216 is loaded into node 613. It talks to node 713 which provides a run-length display in green.
+
+<img src="e-x2.jpg">
+<h2>Arithmetic</h2>
+The arithmetic required for this calculation is educational. I'm using 11-bit fractions which require extra shifting.
+
+<h2><font color=red>*.</font></h2><ul>
+<li>The usual 17-bit signed-fraction multiply
+<li>Register <font color=green>a</font> is retrieved and shifted left (this is left-over from the left-shift in ROM)
+<li>Now have the complete 36-bit product, with 11+11+1 fraction bits
+<li>Shift it left 6 bits. This makes 29 fraction bits of which 11 (29-18) are now in the high-order word</ul>
+
+<h2><font color=red>/.</font></h2><ul>
+<li>We're dividing 2 numbers, integers or aligned fractions (dividend positive, divisor negative)
+<li>Provide a 0 low-order word to make a 36-bit dividend. Think of it as adding 18 fraction bits
+<li>Shift it right 7 bits, so 11 fraction bits remain
+<li>Do a normal divide, discarding the remainder
+<li>The quotient is an 18-bit fraction</ul>
+
+<h2>Function</h2>
+The approximation is from Hastings' <em>Approximations for Digital Computers</em>, Princeton University Press, 1955, Sheet 27. An oldy but goody reference.
+
+<p>The approximation is 1 divided by a cubic polynomial in x<sup>2</sup>. I don't care about normalizing the area, so I normalize the fraction to an 11-bit 1. With x=4, (x<sup>2</sup>)<sup>3</sup> is a really large number, so I divide x<sup>2</sup> by 2 to help (that screws up the standard-deviation). I only use 2 decimal digits in the coefficients for the same reason. A different application would justify more work.
+
+<h2><font color=red>e-x2</font></h2>
+The cryptic name is intended to suggest the funtion.<ul> 
+<li>11-bit fraction on stack; range 0-25.
+<li>Compute negative polynomial (since it's a divisor), discard multiplicand
+<li>Divide normalized to 1.</ul>
+
+<h2><font color=red>go</font></h2><ul>
+<li>An infinite loop, starting amplitude at 0
+<li>2801 frames (1 minute)<ul>
+<li>768 scan lines, start index at -388 (instead of -384, to match histogram)
+<li>Divide amplitude by 4 to provide room to calibrate
+<li>Make index positive
+<li>Convert to fraction with 'standard-deviation' 80
+<li>Compute x<sup>2</sup>/2, discarding multiplicand
+<li>Call <font color=green>e-x2</font> and multiply by amplitude
+<li>Call <font color=green>dot</font> to display
+<li>Increment index</ul>
+<li>Increment amplitude by 11 to track growing histogram</ul>
+
+

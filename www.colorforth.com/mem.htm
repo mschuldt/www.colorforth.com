@@ -1,0 +1,49 @@
+<h1 align=center>Memory manipulation</h1>
+Here are words that move and sort data in local RAM.
+
+<h2><font color=red>move</font></h2>
+Moves data from source to destination.<ul>
+<li><font color=red>move</font> dsn <font color=green> for a! @+ a push a! !+ a pop next drop drop ;</font></ul>
+This is the best code if data won't overlap or if destination is not greater than source. The strategy is to increment both source and destination in register <font color=green>a</font><ul>
+<li>Fetch word from source
+<li>Save incremented <font color=green>a</font> on return stack
+<li>Store to destination
+<li>Restore addresses and repeat
+<li>Discard addresses</ul>
+
+<h2><font color=red>+move</font></h2>
+Moves data from source to destination when data overlap and destination is greater than source. As in pushing an entry into a table. The count is n-1, which is convenient.<ul>
+<li><font color=red>+move</font> dsn <font color=green> dup push . + a! pop dup push . + a
+<br>begin a! @ a -1 . + push a! ! a -1 . + pop next drop drop ;</font></ul>
+Clearly the code for <font color=green>move</font> is shorter and faster.
+
+<p>The first line moves source and destination to the end of their regions. It is unnecessary if they already point there.<ul>
+<li>Push count onto return stack for <font color=green>begin</font>
+<li>Add count to source and save in <font color=green>a</font> (convenient that it's n-1)
+<li>Retrieve count (<font color=green>pop dup push</font>) and add to destination
+<li>Restore source
+<li>Start loop
+<li>Fetch from source
+<li>Decrement address and save on return stack
+<li>Store to destination
+<li>Decrement address and restore source
+<li>Repeat
+<li>Discard addresses</ul>
+
+<h2><font color=red>bubble</font></h2>
+This bubble sort takes an entry at the beginning of a sorted table and finds its place. The table must have a stopper greater than any possible entry. This is the smallest (only) sort I know.<ul>
+<li><font color=red>bubble</font> nt <font color=green>a! for @+ @ - + - -if 
+<br>@ a -1 + a! @ push !+ pop ! then drop next ;</font></ul>
+The two adds do not need a dot before them because they're in slot 3.<ul>
+<li>Set <font color=green>a</font> and start loop 
+<li>Subtract entry from its successor
+<li>If not possible (negative) entries must be exchanged<ul>
+   <li>Fetch the second
+   <li>Decrement <font color=green>a</font>
+   <li>Fetch the first and save on return stack
+   <li>Store the second
+   <li>Restore and store the first</ul>
+<li>Drop the result of subtract
+<li>Repeat</ul>
+
+Looks like building this table should start from high address and grow toward lower.

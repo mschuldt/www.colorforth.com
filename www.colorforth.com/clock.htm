@@ -1,0 +1,20 @@
+<h1 align=center>10MHz Clock</h1><h3>
+<img src="10MHz.jpg" align=right>
+
+<p>Got the ceramic resonator working nicely. Strategy is threefold:<ol>
+<li>Start it with 10 cycles of high, tristate, low, tristate at 10 MHz
+<li>Pump it every 10th cycle as it goes high, then low
+<li>Count 9 cycles of going high, then low</ol>
+You detect going high/low by fetching from the <font color=green>up <font color=black>port after selecting a high/low level. Node will sleep till the transition occurs, then synchronize accurately.
+
+<p>Note on the trace the pump pulse followed by 9 counts (actually 10; pretty close). That is repeated 20 times to obtain 50 KHz timing. The duty cycle of pumping can vary from 5% to 100% and controls the amplitude of the sine wave (1.7 V), which gradually decreases. Smaller duty cycle, less power consumed, less RFI. The starting sequence can be as few a 8 cycles.
+
+<p>The resonator is less precise than a crystal, costs less and is easier to start. This non-linear drive requires only 1 pin and pins are a valuable resource. It does require 1 node, but nodes are cheap and plentiful. And the node can do other tasks, such as provide 50KHz and 60Hz signals.
+
+<p>Code is optimized by pre-filling the stack with numbers:<ul>
+<li>Level at which to awake: high 8000, low 0
+<li>Value to drive pin: high 30000, low 20000
+<li>Value to tristate pin: 0
+<li><font color=green>unext <font color=black>count to complete 50ns pulse: 7
+<li>2 copies of these 4 numbers</ul>
+The various modes - start, pump, count - each select from these and <font color=green>drop <font color=black>those that are irrelevant. The 8 numbers appear repeatedly from the 8-deep circular portion of the stack.

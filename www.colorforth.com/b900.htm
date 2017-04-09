@@ -1,0 +1,84 @@
+<h1 align=center>Ether</h1>
+<img src="b900.jpg">
+<br>This code from block 900 is loaded into node 608. And from there into all the other nodes in both the target and host chips of GreenArrays' Eval board. This is the code that establishes the ether which communicates amongst nodes.
+
+<p>Be warned that this is the most complicated block of code that I've written. Stack comments may help:<ul>
+<li>f for flag, distinguishing <font color=green>code</font> (0) from <font color=green>fill</font>
+<li>n for count
+<li>a for a register
+<li>p for path
+<li>c for count word
+<li>j for call</ul>
+
+<p>The header for an ether message is 4 words:<ul>
+<li>focus
+<li>call
+<li>path
+<li>counts</ul>
+followed by the payload.
+
+<p>The word <font color=#c0c000>e608</font> in the last line is special code to load this block into node 608 from async node 708.
+
+<h2>Port calls</h2>
+The first 4 words of RAM contain calls to the right, left, down and up ports. Because of the way nodes are mirrored, if you move left/right those calls must be swapped. If you move up/down those calls must be swapped. This procedure undoes the complication of mirrored nodes.
+
+<p>These port calls are used as the port address. That's ok because only the 9 low-order bits are the address. The call instruction in the high-order bits is ignored.
+
+<h2><font color=red>fill</font></h2>
+This is the initial entry point. It puts a non-zero on the stack and jumps to <font color=green>whence</font>. <font color=green>Fill</font> will copy this block of code into every node along the path.
+
+<h2><font color=red>code</font></h2>
+This is the nominal entry point. It puts a 0 on the stack and falls into <font color=green>whence</font>.
+
+<h2><font color=red>whence</font></h2>
+Determines from which comm port the message comes. The call following the focus call brought us here. So the focus address is on the return stack. It's put into register a where it will remain.
+
+<p>The next word is fetched, which is the path. Fall into <font color=green>turn</font>.
+
+<h2><font color=red>turn</font></h2>
+Examines the path:<ul>
+<li>If the current (low-order) run is non-zero, go to <font color=green>wither</font> to continue the run.
+<li>If the next run is non-zero, shift it right and repeat <font color=green>turn</font>.
+<li>Otherwise path is finished. <font color=green>Copy?</font> will copy this block of code, if desired
+<li>Finally, forward the payload.</ul> 
+
+<h2><font color=red>wither</font></h2><ul>
+<li>Decrements the current run
+<li>Copies this code
+<li>Forward call to next node
+<li>Forward path
+<li>Fetch and forward count word
+<li>Fall into <font color=green>payload</font></ul>
+
+<h2><font color=red>payload</font></h2><ul>
+<li>Call <font color=green>pump</font> to forward the payload
+<li>Examine reply count<ul>
+   <li>If non-zero, decrement and await reply
+   <li>Otherwise finished. Return to 4-port read, whose address is now on the return stack.</ul></ul>
+
+<h2><font color=red>copy?</font></h2><ul>
+<li>Path is on the stack. Use the 2 direction bits to fetch the correct port call
+<li>Store into register b, the destination to forward the message
+<li>Forward port call as the focus
+<li>If code is to be copied<ul>
+   <li>Save and restore register a
+   <li>Call <font color=green>mirror</font> to adjust the port calls
+   <li>Call <font color=green>copy</font> to forward the code
+   <li>Call <font color=green>mirror</font> again to restore the port calls
+   <li>Return call to <font color=green>fill</font></ul>
+<li>Return call to <font color=green>code</font></ul>
+
+<h2><font color=red>mirror</font></h2><ul>
+<li>Register a has been saved on the stack
+<li>The 2s bit of the path distinguishes right/left from down/up
+<li>Saving a and fetching with increment gets 2 calls
+<li>Restoring a and storing with increment swaps them</ul>
+
+<h2><font color=red>copy</font></h2>
+Forwards 3 instruction words and falls into <font color=green>pump</font>. The code for those words is standard transfer code in the comment line just above. The will be executed by the destination node<ul>
+<li>Set a to 0
+<li>Load count into R
+<li>And read into RAM</ul>
+
+<h2><font color=red>pump</font></h2>
+Simply moves data from the address in register a to that in b. Increment fetch is used to move data from RAM. If it is moving from a port, the increment is suppressed.

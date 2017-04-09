@@ -1,0 +1,10 @@
+<h1 align=center>Wire node</h1>
+<img src="b882.jpg">
+<br>This code from block 882 is loaded into node 614. It is typical of code for wire nodes; nodes that merely pass data from one port to another. Such nodes typically have a low duty cycle and use little power. But they're essential to connect nodes that have constrained positions, such as a/d nodes.
+
+<p>Often such nodes can operate on the data passing thru, providing a service and adding to useful cpu cycles.
+
+<p>Different versions of this code only require changing the comments, register addresses and loading path. Actually everything except <font color=green>go</font>.
+
+<h2><font color=red>go</font></h2>
+An infinite loop that reads from the port addressed by register b and writes to the port addressed by register a. It uses one word of RAM and requires an instruction fetch for each transfer, but the code is simple and transparent.

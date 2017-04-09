@@ -1,0 +1,63 @@
+<h1 align=center>Local Sidereal Time</h1>
+<img src="b1170.jpg">
+<br>This code from block 1170 is loaded into node 512. It computes sidereal time for 120<sup>o</sup> west longitude (Reno).
+
+<p>More importantly, it is my first use of interpreted code (see <font color=#c0c000>init</font> below).
+
+<h2><font color=red>*.16</font></h2>
+Multiply by a 16-bit fraction. It's similar to (actually uses) <font color=green>*.17</font> but allows fractions greater than 1.
+
+<h2><font color=red>d/mod</font></h2>
+Basic divide code with a 36-bit positive dividend; 18-bit negative divisor, 18-bit positive quotient and remainder. (This is a classic example of trying to describe a word in its name. The ROM name is --u/mod, which is merely cryptic.)
+
+<h2><font color=red>/mod</font></h2><ul>
+<li>Convert an 18-bit unsigned number to a 36-bit number
+<li><font color=green>d/mod</font> returns remainder and quotient</ul>
+
+<h2><font color=red>*.</font></h2>
+Fraction multiply discarding buried multiplicand.
+
+<h2><font color=red>nip</font></h2>
+Discard 2nd number on stack. Used twice.
+
+<h2><font color=red>*</font></h2>
+Multiply 18-bit positive numbers for a 36-bit product.
+
+<h2><font color=red>leap</font></h2>
+Correct days for leap year. Works from 1901 to 2099 since 2000 <em>is</em> a leap year.<ul>
+<li>Input is day and 4-digit yymm
+<li>Separate year. If not divisible by 4, return
+<li>Otherwise if month is less than 3, return
+<li>Otherwise add 1 to day</ul>
+This is a good example of how conditional returns can simplify logic.
+
+<h2><font color=red>days</font></h2>
+yymmdd on stack. Computes days since 000101 (2000/01/01):<ul>
+<li>Separate days and call <font color=green>leap</font>
+<li>Multiply years by 365.25 (1461 as 2-bit fraction). Add 3 (round) since 2000 is a leap year. Discard fraction
+<li>Fetch zeroth day of month from table starting at RAM address 1
+<li>Add to days
+</ul>
+
+<h2><font color=red>lst</font></h2>
+Takes minute and yymmdd on the stack and returns LST in minutes:<ul>
+<li>Multiplies days since 2000 (scaled by 4) by sidereal minutes/day (unsigned fraction 258382). Result is minutes in high-order product
+<li>Time is corrected to UTC (420) and adjusted to sidereal (fraction 65714)
+<li>Sidereal time at 2000/01/01 is added (402). (This number had to be fudged to get the correct answer, so there might be an error somewhere. Appreciate feedback.)
+<li>Longitude is added (120<sup>o</sup>W: -480)
+<li>Minutes so far are positive; are returned modulo 1440 (minutes/day)
+</ul>
+
+<h2><font color=#c0c000>init</font></h2>
+This code is still compiled by native colorForth on the PC, which can access the CMOS clock and defines <font color=#c0c000>minute</font> of the day  and <font color=#c0c000>yymmdd</font>.
+
+<p>These numbers are compiled by <font color=green>lit</font> into the code specified by <font color=#c0c000>init</font> to be executed. It jumps to <font color=green>lst</font> with them on the stack and returns with LST on the stack. Node 512 does this and then awaits further instructions, since the return from <font color=green>lst</font> is to the 4-port execute from reset.
+
+<p>That's the end of this block of code. It leaves a number on the stack. Another block of code will be loaded into this node. It will find LST on the stack, since loading code disturbs only the bottom-of-stack.
+
+<p>This procedure is effectively the Forth interpreter. Code is executed at compile time. Unlimited code can be executed by a node, provided only that it's factored into 64-word chunks.
+
+<h2>Options</h2>
+If <font color=green>lst</font> is commented out, <font color=green>over</font> will retrieve PDT. If 420 is added, it becomes UTC. This is useful for debugging, but a civil clock doesn't need this code at all.
+
+<p>Replacing <font color=#c0c000>minute</font> <font color=green>lit</font> and <font color=#c0c000>yymmdd</font> <font color=green>lit</font> with numbers will compute LST for a particular time. Useful for debugging.

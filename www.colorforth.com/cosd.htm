@@ -1,0 +1,42 @@
+<h1 align=center>35-bit sine and cosine</h1>
+<img src="b972.jpg">
+<br>This code from block 972 is loaded into node 610.
+The input angle is an 36-bit fraction of a revolution; 1. is represented as 777777,777777. One bit is 40 micro-arcseconds. The cos is a 35-bit fraction, with 1. represented as 377777,777777. This provides 10-digit resolution.
+
+<h2><font color=red>*d +d</font></h2>
+Double arithmetic is done be a neighbor node. It does a signed multiply or add of 35-bit fractions. A call to the proper routine is sent after the arguments. Fractions are stored on his stack. This is analogous to a floating-point coprocessor. 
+
+<h2><font color=red>!d @d</font></h2>
+Numbers are passed to/from the neighbor by instructions he'll execute from his comm port.
+
+<h2><font color=red>f</font></h2>
+Fractions are fetched in order from an array at RAM address 0. They've been scaled to be 35-bit fractions and are sent to the neighbor by falling into <font color=green>!d</font>.
+
+<h2><font color=red>sin</font></h2>
+Sin is computed by subtracting 90<sup>o</sup> from the high-order part of the input angle and falling into <font color=green>cos</font>.
+
+<h2><font color=red>cos</font></h2>
+The approximation used is taken from Computer Approximations by John F Hart, Wiley 1968; function 3301. This excellent reference has coefficients for many functions to various precisions. This approximation is<ul>
+<li>x(1 + a + bx<sup>2</sup> + cx<sup>4</sup> + dx<sup>6</sup> +ex<sup>8</sup>)</ul>
+with a-e less than 1. Result is better than 8 digits between 0 and 90<sup>o</sup>.<ul>
+
+<li>The input angle is an 36-bit fraction
+<li>The simple function tri (triangle) is computed as a linear approximation. It ramps up and down as does the cos and establishes the sign of the result. As the angle counts from 0-777777,777777<ul>
+   <li>tri starts at 377777,777777
+   <li>counts down by 2s to 000001,000000
+   <li>thence to -1, skipping 0
+   <li>counts down by 2s to 200000,000001 (largest negative number +1)
+   <li>repeats 200000,000001
+   <li>counts up by 2s to 377777,777777 (at angle 777777,777777)
+   <li>The repetition at the peaks will, of course, occur with the <font color=green>cos</font>. This is how you want 35-bit fractions to behave
+   <li>The effect is that a half-bit has been added to the input angle</ul>
+<li>x is saved (<font color=green>over over</font>) and squared
+<li>x<sup>2</sup> is multiplied by Hart's coefficients, scaled to 377777,777777 
+<li>Which is then multiplied by x and x added
+</ul>
+
+<h2><font color=red>go</font></h2>
+An infinite loop reading an angle from <font color=green>left</font> (node 609) and returning sin and/or cos as desired.
+
+<h2>Validation</h2>
+I've compared cos with its 17-bit version and examined the 17-bit residual. I've displayed the residual of sin<sup>2</sup> + cos<sup>2</sup> - 1 which is a few bits from 0. And I've watched the bits near the peaks and zero crossings; all is as I expect.

@@ -1,0 +1,31 @@
+<h1 align=center>3-d vector rotation</h1>
+It's expected that either the vector or the matrix are 16-bit fractions.
+
+<br><img src="rot.jpg">
+<h2>Storage</h2>
+Space is left at address 0 to store the 3-vector and the 3x3 matrix. Presumably the matrix will be applied to multiple vectors. There's enough room for a 5x5 matrix.
+
+<h2><font color=red>*.</font></h2>
+16-bit fraction multiply, discarding multiplicand
+
+<h2><font color=red>m</font></h2>
+A variable to store the index into the matrix. It runs 9 words from 3 to 12.
+
+<h2><font color=red>ele</font></h2>
+Process an element of the matrix<ul>
+<li>Fetch vector component
+<li>Save <font color=green>a</font>
+<li>Retrieve matrix index
+<li>Fetch matrix component
+<li>Save matrix index
+<li>Multiply
+<li>Restore <font color=green>a</font></ul>
+
+<h2><font color=red>*v</font></h2>
+Multiply vector by matrix.<ul>
+<li>Store vector
+<li>For 3 results<ul>
+   <li>Add 3 elements</ul></ul>
+
+<h2><font color=red>matrix</font></h2>
+Read and store matrix. This could be done with port execution.

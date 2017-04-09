@@ -1,0 +1,31 @@
+<h1 align=center>Integer square root</h1>
+An interesting calculation. Worth some words for the lessons it teaches.
+
+<p>This algorithm is a port of my PDP11 code from the 1970s. I had then only a vague understanding of why it worked. No less vague now. It has to do with the difference between squares being successive odd numbers?
+
+<p>It ported very nicely. On the '11 I used registers; on the C18 I use the stack. But the '11 had more shifts and compares.
+
+<br><img src="b1192.jpg">
+<h2>34 bit square root</h2>
+The whole block is compiled with P9 set, since all <font color=green>+</font> operations will use carry.
+
+<h2><font color=red>2*3</font></h2>
+A 3-word add with carry (a 54-bit left shift):<ul>
+<li>Add the low-order word to itself (shift left). It doesn't matter what the carry-in is. That only affects the low-order bit, which is never used. The code <font color=green>dup +</font> does not require a <font color=green>.</font> because there is no ripple to wait for
+<li>Add the high-order word to itself
+<li>Add register <font color=green>a</font> to itself. <font color=green>a</font> is a scratch register containing the high-order bits. It's initialized to 0
+<li>Carry will be 0, since <font color=green>a</font> must not overflow or the code fails</ul>
+
+<h2><font color=red>step</font></h2>
+Similar to a divide step:<ul>
+<li>Construct a trial divisor by shifting 01 into the stack
+<li>If possible, subtract from <font color=green>a</font></ul>
+
+<h2><font color=red>sqrt</font></h2><ul>
+<li>18 times:<ul>
+   <li>Shift 3 words (stack and <font color=green>a</font>) left 2 places
+   <li>Call <font color=green>step</font>
+   <li>Shift the (inverted) carry bit into the stack</ul></ul>
+
+<h2><font color=red>go</font></h2>
+An infinite loop that reads a 34-bit input and returns its square-root.
