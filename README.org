@@ -1,0 +1,36 @@
+Hosted on github pages: [[https://mschuldt.github.io/www.colorforth.com][www.colorforth.com]] 
+
+Helpful links for programming the GA144:
+
+ - [[https://mschuldt.github.io/www.colorforth.com/inst.htm][instruction set]]
+ - [[https://mschuldt.github.io/www.colorforth.com/arith.htm][Arithmetic routines]]
+ - [[https://mschuldt.github.io/www.colorforth.com/var.htm][variables]]
+ - [[https://mschuldt.github.io/www.colorforth.com/mem.htm][Memory manipulation]]
+ - [[https://mschuldt.github.io/www.colorforth.com/wire.htm][Wire Nodes]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b1100.htm][best wire node]]
+ - [[https://mschuldt.github.io/www.colorforth.com/sqrt.htm][Integer square root]]
+ - [[https://mschuldt.github.io/www.colorforth.com/cos.htm][Sine and cosine]]
+ - [[https://mschuldt.github.io/www.colorforth.com/cosd.htm][35-bit sine and cosine]]
+ - [[https://mschuldt.github.io/www.colorforth.com/atan.htm][ArcTangent]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b1206.htm][Logarithm]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b958.htm][Exponential]]
+ - [[https://mschuldt.github.io/www.colorforth.com/e-x2.htm][Gaussian function]]
+ - [[https://mschuldt.github.io/www.colorforth.com/3d.htm][3-d vector arithmetic]]
+ - [[https://mschuldt.github.io/www.colorforth.com/rot.htm][3-d vector rotation]]
+ - [[https://mschuldt.github.io/www.colorforth.com/complex.htm][Complex arithmetic]]
+ - [[https://mschuldt.github.io/www.colorforth.com/random.htm][Random numbers]]
+ - [[https://mschuldt.github.io/www.colorforth.com/serial.htm][GA144 Serial input]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b978.htm][Serdes master]]
+ - [[https://mschuldt.github.io/www.colorforth.com/flash.htm][SDI flash]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b1158.htm][18-bit SRAM]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b1360.htm][16-bit SRAM]]
+ - [[https://mschuldt.github.io/www.colorforth.com/ef.htm][etherForth]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b900.htm][Ether]]
+ - [[https://mschuldt.github.io/www.colorforth.com/b942.htm][10MHz ceramic resonator(1)]] [[https://mschuldt.github.io/www.colorforth.com/clock.htm][(2)]]
+ - [[https://mschuldt.github.io/www.colorforth.com/watch.htm][Stop Watch]]
+ - [[https://mschuldt.github.io/www.colorforth.com/timer.htm][node 709 Timer]]
+ - [[https://mschuldt.github.io/www.colorforth.com/timings.htm][timings]]
+ - [[https://mschuldt.github.io/www.colorforth.com/add.htm][optimizations for + instruction]]
+
+
+Mirrored around April 2015
